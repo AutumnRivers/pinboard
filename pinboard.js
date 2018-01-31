@@ -18,47 +18,32 @@ setInterval(() => {
 
 client.login(pind.tokenboi)
 
+function updateStats() {
+snekfetch.post(`https://ls.terminal.ink/api/v1/bots/380450195797835776`)
+.set('Authorization', pind.ink)
+  .send({ "server_count": client.guilds.size })
+  .then(() => console.log('Updated ls.terminal.ink stats.'))
+  .catch(err => console.error(`Whoops something went wrong: ${err.body}`));
+  snekfetch.post(`https://discordbots.org/api/bots/stats`)
+.set('Authorization', pind.dbots)
+  .send({ "server_count": client.guilds.size })
+  .then(() => console.log('Updated discordbots stats'))
+  .catch(err => console.error(`Error while posting to DiscordBots: ${err.body}`));
+}
+
 client.on("ready", () => {
 client.user.setGame("with pushpins")
-  snekfetch.post(`https://ls.terminal.ink/api/v1/bots/380450195797835776`)
-.set('Authorization', pind.ink)
-  .send({ "server_count": client.guilds.size })
-  .then(() => console.log('Updated ls.terminal.ink stats.'))
-  .catch(err => console.error(`Whoops something went wrong: ${err.body}`));
-  snekfetch.post(`https://discordbots.org/api/bots/stats`)
-.set('Authorization', pind.dbots)
-  .send({ "server_count": client.guilds.size })
-  .then(() => console.log('Updated discordbots stats'))
-  .catch(err => console.error(`Error while posting to DiscordBots: ${err.body}`));
-  });
+updateStats()
+});
 
 client.on("guildCreate", () => {
-	snekfetch.post(`https://ls.terminal.ink/api/v1/bots/380450195797835776`)
-.set('Authorization', pind.ink)
-  .send({ "server_count": client.guilds.size })
-  .then(() => console.log('Updated ls.terminal.ink stats.'))
-  .catch(err => console.error(`Whoops something went wrong: ${err.body}`));
-  snekfetch.post(`https://discordbots.org/api/bots/stats`)
-.set('Authorization', pind.dbots)
-  .send({ server_count: client.guilds.size })
-  .then(() => console.log('Updated discordbots stats'))
-  .catch(err => console.error(`Error while posting to DiscordBots: ${err.body}`));
+updateStats()
   });
   
-  client.on("guildDelete", () => {
-	snekfetch.post(`https://ls.terminal.ink/api/v1/bots/380450195797835776`)
-.set('Authorization', pind.ink)
-  .send({ "server_count": client.guilds.size })
-  .then(() => console.log('Updated ls.terminal.ink stats.'))
-  .catch(err => console.error(`Whoops something went wrong: ${err.body}`));
-  snekfetch.post(`https://discordbots.org/api/bots/stats`)
-.set('Authorization', pind.dbots)
-  .send({ server_count: client.guilds.size })
-  .then(() => console.log('Updated discordbots stats'))
-  .catch(err => console.error(`Error while posting to DiscordBots: ${err.body}`));
+client.on("guildDelete", () => {
+updateStats()
   });
   
-
 client.on("channelPinsUpdate", channel => {
 	if(pinnedRecently.has(channel.id)) return;
 const ch = channel;
@@ -149,5 +134,4 @@ if(message.content.toLowerCase() == prefix + "help") {
   if (message.content == ("pin.invite")) {
 message.channel.send(`Invite me to your server with this link!\nhttps://discordapp.com/oauth2/authorize?client_id=${client.user.id}&scope=bot&permissions=289808`)
 }
-	
-	})
+})
