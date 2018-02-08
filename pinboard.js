@@ -62,7 +62,7 @@ const board = channel.guild.channels.find("name", "pinboard")
 	if(!board) {
 if(channel.guild.me.hasPermission("MANAGE_CHANNELS") == false) return;
 	channel.guild.createChannel('pinboard', 'text')
-	channel.guild.channels.find("name", "pinboard").send(pinMsgs.id, {embed:
+	channel.guild.channels.find("name", "pinboard").send("", {embed:
 		{color: 0x123456,
 		title: `New pinned message in ${channel.name}`,
 		description: pinMsgs.content}});
@@ -74,7 +74,7 @@ setTimeout(() => {
 }, 2500);
 } else {
 	if(board.permissionsFor(board.guild.me).has("EMBED_LINKS") == false) return;
-		board.send(pinMsgs.id, {embed:
+		board.send("", {embed:
 			{color: 0x123456,
 			title: `New pinned message in ${channel.name}`,
 			description: (pinMsgs.content),
