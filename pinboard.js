@@ -61,30 +61,30 @@ const board = channel.guild.channels.find("name", "pinboard")
 	
 	if(!board) {
 if(channel.guild.me.hasPermission("MANAGE_CHANNELS") == false) return;
-channel.guild.createChannel('pinboard', 'text')
-channel.guild.channels.find("name", "pinboard").send(pinMsgs.id, {embed:
-{color: 0x123456,
-title: `New pinned message in ${channel.name}`,
-description: pinMsgs.content}});
-if(ch.permissionsFor(ch.guild.me).has("MANAGE_MESSAGES") == false) return;
+	channel.guild.createChannel('pinboard', 'text')
+	channel.guild.channels.find("name", "pinboard").send(pinMsgs.id, {embed:
+		{color: 0x123456,
+		title: `New pinned message in ${channel.name}`,
+		description: pinMsgs.content}});
+	if(ch.permissionsFor(ch.guild.me).has("MANAGE_MESSAGES") == false) return;
 pinMsgs.unpin()
-pinnedRecently.add(ch.id);
+	pinnedRecently.add(ch.id);
 setTimeout(() => {
 	pinnedRecently.delete(ch.id);
 }, 2500);
 } else {
 	if(board.permissionsFor(board.guild.me).has("EMBED_LINKS") == false) return;
-board.send(pinMsgs.id, {embed:
-{color: 0x123456,
-title: `New pinned message in ${channel.name}`,
-description: (pinMsgs.content),
-image: {
-url: atch
-}
-}})
-if(ch.permissionsFor(ch.guild.me).has("MANAGE_MESSAGES") == false) return;
+		board.send(pinMsgs.id, {embed:
+			{color: 0x123456,
+			title: `New pinned message in ${channel.name}`,
+			description: (pinMsgs.content),
+			image: {
+				url: atch
+			}
+		}})
+	if(ch.permissionsFor(ch.guild.me).has("MANAGE_MESSAGES") == false) return;
 pinMsgs.unpin()
-pinnedRecently.add(ch.id);
+	pinnedRecently.add(ch.id);
 setTimeout(() => {
 	pinnedRecently.delete(ch.id);
 }, 45000);
@@ -127,11 +127,11 @@ if(message.content.toLowerCase() == prefix + "check") {
 				message.channel.send("A pinboard channel already exists, as far as I know...\nIf one doesn't exist, please contact Smartie!")
 			}}
 			
-if(message.content.toLowerCase() == prefix + "help") {
-	message.channel.send("**Pinboard Help**\n```\nPrefix: pin.\n\ninfo - Uhhhh stuff, I guess?\ncheck - Is Pinboard ready to go?\nboard - Create the #pinboard channel, if it doesn't exist already.\n```")
+	if(message.content.toLowerCase() == prefix + "help") {
+		message.channel.send("**Pinboard Help**\n```\nPrefix: pin.\n\ninfo - Uhhhh stuff, I guess?\ncheck - Is Pinboard ready to go?\nboard - Create the #pinboard channel, if it doesn't exist already.\n```")
 	}
   
   if (message.content == ("pin.invite")) {
-message.channel.send(`Invite me to your server with this link!\nhttps://discordapp.com/oauth2/authorize?client_id=${client.user.id}&scope=bot&permissions=289808`)
+		message.channel.send(`Invite me to your server with this link!\nhttps://discordapp.com/oauth2/authorize?client_id=${client.user.id}&scope=bot&permissions=289808`)
 }
 })
