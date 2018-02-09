@@ -53,9 +53,11 @@ const board = channel.guild.channels.find("name", "pinboard")
 	const pinMsgs = messages.first()
 	
 	if(!pinMsgs) return;
-	if(pinMsgs.attachments.first() == undefined) {
-		var atch = undefined
-		} else {
+	if(pinMsgs.embeds[0].url !== undefined) {
+				var atch = pinMsgs.embeds[0].url
+			} else if(pinMsgs.attachments.first() == undefined) {
+				var atch = undefined
+			} else {
 		var atch = pinMsgs.attachments.first().url
 		}
 	
@@ -65,13 +67,20 @@ if(channel.guild.me.hasPermission("MANAGE_CHANNELS") == false) return;
 	channel.guild.channels.find("name", "pinboard").send("", {embed:
 		{color: 0x123456,
 		title: `New pinned message in ${channel.name}`,
-		description: pinMsgs.content}});
+		description: pinMsgs.content},
+		image: {
+			url: atch
+		},
+		thumbnail: {
+			url: pinMsgs.author.avatarURL
+		}
+	});
 	if(ch.permissionsFor(ch.guild.me).has("MANAGE_MESSAGES") == false) return;
 pinMsgs.unpin()
 	pinnedRecently.add(ch.id);
 setTimeout(() => {
 	pinnedRecently.delete(ch.id);
-}, 2500);
+}, 45000);
 } else {
 	if(board.permissionsFor(board.guild.me).has("EMBED_LINKS") == false) return;
 		board.send("", {embed:
@@ -80,6 +89,9 @@ setTimeout(() => {
 			description: (pinMsgs.content),
 			image: {
 				url: atch
+			},
+			thumbnail: {
+				url: pinMsgs.author.avatarURL
 			}
 		}})
 	if(ch.permissionsFor(ch.guild.me).has("MANAGE_MESSAGES") == false) return;
@@ -131,7 +143,15 @@ if(message.content.toLowerCase() == prefix + "check") {
 		message.channel.send("**Pinboard Help**\n```\nPrefix: pin.\n\ninfo - Uhhhh stuff, I guess?\ncheck - Is Pinboard ready to go?\nboard - Create the #pinboard channel, if it doesn't exist already.\n```")
 	}
   
-  if (message.content == ("pin.invite")) {
+  if (message.content.toLowerCase() == ("pin.invite")) {
 		message.channel.send(`Invite me to your server with this link!\nhttps://discordapp.com/oauth2/authorize?client_id=${client.user.id}&scope=bot&permissions=289808`)
 }
+
+	if(message.content.toLowerCase() == ("pin.setup")) {
+		message.channel.send("Need help setting me up? Have I got a guide for you!\nhttps://github.com/SmartieYT/pinboard/blob/master/setup.md")
+	}
+
+	if(message.content.toLowerCase() == ("pin.git") || message.content.toLowerCase() == "pin.github") {
+		message.reply("This is my GitHub repo!\nhttps://github.com/SmartieYT/pinboard")
+	}
 })
