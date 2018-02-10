@@ -53,7 +53,9 @@ const board = channel.guild.channels.find("name", "pinboard")
 	const pinMsgs = messages.first()
 	
 	if(!pinMsgs) return;
-	if(pinMsgs.embeds[0].url !== undefined) {
+	if(!pinMsgs.embeds[0].video !== null) {
+		var atch = pinMsgs.embeds[0].thumbnail.proxyURL
+	} else if(pinMsgs.embeds[0].url !== undefined) {
 				var atch = pinMsgs.embeds[0].url
 			} else if(pinMsgs.attachments.first() == undefined) {
 				var atch = undefined
