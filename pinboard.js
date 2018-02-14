@@ -53,15 +53,16 @@ const board = channel.guild.channels.find("name", "pinboard")
 	const pinMsgs = messages.first()
 	
 	if(!pinMsgs) return;
-	if(!pinMsgs.embeds[0].video !== null) {
-		var atch = pinMsgs.embeds[0].thumbnail.proxyURL
-	} else if(pinMsgs.embeds[0].url !== undefined) {
-				var atch = pinMsgs.embeds[0].url
-			} else if(pinMsgs.attachments.first() == undefined) {
+	if(pinMsgs.embeds[0] !== undefined) {
+	if(pinMsgs.attachments.first() !== undefined) {
+			var atch = pinMsgs.attachments.first().url
+		} else if(pinMsgs.embeds[0].thumbnail !== undefined) {
+			var atch = pinMsgs.embeds[0].thumbnail.url
+		} else {
 				var atch = undefined
-			} else {
-		var atch = pinMsgs.attachments.first().url
-		}
+			}} else  {
+				var atch = undefined
+			}
 	
 	if(!board) {
 if(channel.guild.me.hasPermission("MANAGE_CHANNELS") == false) return;
@@ -94,6 +95,9 @@ setTimeout(() => {
 			},
 			thumbnail: {
 				url: pinMsgs.author.avatarURL
+			},
+			footer: {
+				text: `Message created by ${pinMsgs.author.username} (<@${pinMsgs.author.id})`
 			}
 		}})
 	if(ch.permissionsFor(ch.guild.me).has("MANAGE_MESSAGES") == false) return;
