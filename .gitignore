@@ -57,3 +57,8 @@ typings/
 # dotenv environment variables file
 .env
 
+# Bot token
+pind.json
+
+# You don't need to see this
+*.sqlite

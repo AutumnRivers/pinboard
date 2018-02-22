@@ -1,0 +1,23 @@
+{
+  "name": "pinboard",
+  "version": "1.0.0",
+  "description": "Ever wanted to go past Discord's pin limit? This bot will do just that!",
+  "main": "pinboard.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SmartieYT/pinboard.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SmartieYT/pinboard/issues"
+  },
+  "homepage": "https://github.com/SmartieYT/pinboard#readme",
+  "dependencies": {
+    "discord.js": "^11.3.0",
+    "sqlite": "^2.9.1"
+  }
+}

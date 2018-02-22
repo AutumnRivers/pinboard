@@ -1,50 +1,36 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
 const pinnedRecently = new Set();
-const http = require('http');
+const sql = require("sqlite");
+sql.open("./database/pindb.sqlite");
 const pind = require("./pind.json");
 const prefix = "pin.";
-const snekfetch = require("snekfetch");
-const express = require('express');
-const app = express();
-app.get("/", (request, response) => {
-  console.log(Date.now() + " Ping Received");
-  response.sendStatus(200);
-});
-app.listen(process.env.PORT);
-setInterval(() => {
-  http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`);
-}, 280000);
 
 client.login(pind.tokenboi)
 
-function updateStats() {
-snekfetch.post(`https://ls.terminal.ink/api/v1/bots/380450195797835776`)
-.set('Authorization', pind.ink)
-  .send({ "server_count": client.guilds.size })
-  .then(() => console.log('Updated ls.terminal.ink stats.'))
-  .catch(err => console.error(`Whoops something went wrong: ${err.body}`));
-  snekfetch.post(`https://discordbots.org/api/bots/stats`)
-.set('Authorization', pind.dbots)
-  .send({ "server_count": client.guilds.size })
-  .then(() => console.log('Updated discordbots stats'))
-  .catch(err => console.error(`Error while posting to DiscordBots: ${err.body}`));
-}
-
 client.on("ready", () => {
 client.user.setGame("with pushpins")
-updateStats()
+client.guilds.forEach(guild => {
+	sql.run("CREATE TABLE IF NOT EXISTS guildInfo (guildId INTEGER, pingPin TEXT)").then(() => {
+	sql.run("INSERT INTO guildInfo (guildId, pingPin) VALUES (?, ?)", [guild.id, false])
+	})
+})
 });
 
-client.on("guildCreate", () => {
-updateStats()
-  });
-  
-client.on("guildDelete", () => {
-updateStats()
-  });
-  
 client.on("channelPinsUpdate", channel => {
+	sql.get(`SELECT * FROM guildInfo WHERE guildId = ${channel.guild.id}`).then(info => {
+		if(!info) {
+			sql.run("INSERT INTO guildInfo (guildId, pingPin) VALUES (?, ?)", [guild.id, false])
+		}
+
+		if(info.pingPin == "everyone") {
+			var mainContent = "@everyone"
+		} else if(info.pingPin == "here") {
+			var mainContent = "@here"
+		} else {
+			var mainContent = ""
+		}
+
 	if(pinnedRecently.has(channel.id)) return;
 const ch = channel;
 const board = channel.guild.channels.find("name", "pinboard")
@@ -67,7 +53,7 @@ const board = channel.guild.channels.find("name", "pinboard")
 	if(!board) {
 if(channel.guild.me.hasPermission("MANAGE_CHANNELS") == false) return;
 	channel.guild.createChannel('pinboard', 'text')
-	channel.guild.channels.find("name", "pinboard").send("", {embed:
+	channel.guild.channels.find("name", "pinboard").send(mainContent, {embed:
 		{color: 0x123456,
 		title: `New pinned message in ${channel.name}`,
 		description: pinMsgs.content},
@@ -86,7 +72,8 @@ setTimeout(() => {
 }, 45000);
 } else {
 	if(board.permissionsFor(board.guild.me).has("EMBED_LINKS") == false) return;
-		board.send("", {embed:
+	if(board.permissionsFor(board.guild.me).has("SEND_MESSAGES") == false) return;
+		board.send(mainContent, {embed:
 			{color: 0x123456,
 			title: `New pinned message in ${channel.name}`,
 			description: (pinMsgs.content),
@@ -111,12 +98,16 @@ setTimeout(() => {
 	if(ch.guild.id !== pind.testServer) return;
 channel.send("New pinned message with content\n" + pinMsgs.content)
 
-})}})
+})}
+})
+})
+
 
 client.on("message", (message) => {
 	if(message.author.bot) return;
 	if(message.channel.type == 'dm') return;
 	const boardCh = message.guild.channels.find("name", "pinboard")
+	const args = message.content.split(" ").slice(1).join(" ");
 
 if(message.content.toLowerCase() == (prefix + "info")) {
 	message.channel.send("<:pinboard:381044242266456064> Pinboard\n```\nEver wanted to go past discord's pin limit? Are you known for pinning just too much? Well, worry no longer! Pinboard will take care of it for you!\n-=Techie Stuff=-\nLib: discord.js\nRunning on node v8\nHosted on glitch.com\n```\nPinboard requires a #pinboard channel, along with the Manage Messages, Send Messages, and Embed Links permissions.\n`Pinboard, made by SmartiePlays#543`")
@@ -160,4 +151,41 @@ if(message.content.toLowerCase() == prefix + "check") {
 	if(message.content.toLowerCase() == ("pin.git") || message.content.toLowerCase() == "pin.github") {
 		message.reply("This is my GitHub repo!\nhttps://github.com/SmartieYT/pinboard")
 	}
+
+	if(message.content.toLowerCase().startsWith("pin.setping")) {
+		if(message.member.hasPermission("MANAGE_GUILD", true, true, true) == false) return message.reply("no");
+		if(args == "everyone") {
+			sql.get(`SELECT * FROM guildInfo WHERE guildId = ${message.guild.id}`).then(info => {
+				if(!info) {
+					sql.run("INSERT INTO guildInfo (guildId, pingPin) VALUES (?, ?)", [message.guild.id, "everyone"])
+					message.reply("Pinboard will now ping everyone on each pin.")
+				} else {
+					sql.run(`UPDATE guildInfo SET pingPin = "everyone" WHERE guildId = ${message.guild.id}`)
+					message.reply("Pinboard will now ping everyone on each pin.")
+				}
+	})
+	} else if(args == "here") {
+			sql.get(`SELECT * FROM guildInfo WHERE guildId = ${message.guild.id}`).then(info => {
+				if(!info) {
+					sql.run("INSERT INTO guildInfo (guildId, pingPin) VALUES (?, ?)", [message.guild.id, "here"])
+					message.reply("Pinboard will now ping here on each pin.")
+				} else {
+					sql.run(`UPDATE guildInfo SET pingPin = "here" WHERE guildId = ${message.guild.id}`)
+					message.reply("Pinboard will now ping here on each pin.")
+				}
+	})
+	} else if(args == "none") {
+		sql.get(`SELECT * FROM guildInfo WHERE guildId = ${message.guild.id}`).then(info => {
+			if(!info) {
+				sql.run("INSERT INTO guildInfo (guildId, pingPin) VALUES (?, ?)", [message.guild.id, false])
+				message.reply("Pinboard will no longer ping with each pin")
+			} else {
+				sql.run(`UPDATE guildInfo SET pingPin = "false" WHERE guildId = ${message.guild.id}`)
+				message.reply("Pinboard will no longer ping each pin.")
+			}
+})
+	} else {
+		message.reply("incorrect arguments!\n**Correct Arguments**\n`everyone`\n`here`\n`none`")
+	}
+}
 })
