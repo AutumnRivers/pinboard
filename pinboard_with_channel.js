@@ -1,3 +1,10 @@
+/*
+Don't use this. It's extremely buggy.
+Unless you think you can help, don't even look at it. It's messy.
+This is just a BAD version of Pinboard.
+Like, really bad
+*/
+
 const Discord = require("discord.js");
 const client = new Discord.Client();
 const pinnedRecently = new Set();
@@ -9,7 +16,7 @@ const prefix = "pin.";
 client.login(pind.tokenboi)
 
 client.on("ready", () => {
-client.user.setActivity("with a database of pins.")
+client.user.setGame("with pushpins")
 client.guilds.forEach(guild => {
 	sql.get(`SELECT * FROM guildInfo WHERE guildId = ${guild.id}`).then(info => {
 		if(!info) {
@@ -32,8 +39,36 @@ client.on("guildCreate", guild => {
 	}).catch(() => {
 		console.error;
 	})
-	client.guilds.get("380879953727586304").channels.get("416362496543162368").send(`Joined ${guild.name}!\n${guild.id}`)
+	guild.channels.filter(c => c.type == "text").forEach(channel => {
+		channel.fetchPinnedMessages().then(messages => {
+				var pinSize = messages.size
+			
+		sql.get(`SELECT * FROM chnlInfo WHERE channelId = ${channel.id}`).then(chinfo => {
+			if(!chinfo) {
+				sql.run("INSERT INTO chnlInfo (channelId, pinCount, ignorePins) VALUES (?, ?, ?)", [channel.id, pinSize, "false"])
+				console.log("Created channel at guildCreate")
+			}
+		}).catch(() => {
+			console.error;
+		})
+	})
+})
 });
+
+client.on("channelCreate", channel => {
+	channel.fetchPinnedMessages().then(messages => {
+		var pinSize = messages.size
+	
+sql.get(`SELECT * FROM chnlInfo WHERE channelId = ${channel.id}`).then(chinfo => {
+	if(!chinfo) {
+		sql.run("INSERT INTO chnlInfo (channelId, pinCount, ignorePins) VALUES (?, ?, ?)", [channel.id, pinSize, "false"])
+		console.log("Created channel at channelCreate")
+	}
+}).catch(() => {
+	console.error;
+})
+})
+})
 
 client.on("channelPinsUpdate", channel => {
 
@@ -43,7 +78,44 @@ client.on("channelPinsUpdate", channel => {
 			sql.run("INSERT INTO guildInfo (guildId, pingPin) VALUES (?, ?)", [guild.id, "false"])
 		}
 
+		channel.fetchPinnedMessages().then(msgs => {
+			var CurrentPinSize = msgs.size
+		
+		/*
+		Now we get the channel info.
+		THIS part right here is kind of complicated.
+		Lots of room for error.
+		What does this do? Basically, this is the fix for that unpin bug.
+		*/
+		sql.get(`SELECT * FROM chnlInfo WHERE channelId = ${channel.id}`).then(chinfo => {
+			if(!chinfo) {
+				sql.run("INSERT INTO chnlInfo (channelId, pinCount, ignorePins) VALUES (?, ?, ?)", [channel.id, CurrentPinSize, "false"])
+			}
+			if(chinfo.pinCount > CurrentPinSize || chinfo.ignorePins == "true") {
+				sql.run(`UPDATE chnlInfo SET pinCount = ${CurrentPinSize}`);
+				statp = "unpin"
+				console.log("Unpin")
+			} else {
+				sql.run(`UPDATE chnlInfo SET pinCount = ${CurrentPinSize}`);
+				statp = "pin"
+				console.log("Pin")
+				//Update the pin count, but don't stop there. Just move on to the Pinboard feature.
+			}
+		}).catch(err => {
+			console.log(err);
+			sql.run("CREATE TABLE IF NOT EXISTS chnlInfo (channelId INTEGER, pinCount INTEGER, ignorePins TEXT)").then(() => {
+				sql.run("INSERT INTO chnlInfo (channelId, pinCount, ignorePins) VALUES (?, ?, ?)", [channel.id, CurrentPinSize, "false"])
+		})
+	})
+
+console.log("test")
+console.log(statp)
+
 	if(pinnedRecently.has(channel.id)) return;
+	if(statp == "unpin") {
+		console.log("Return triggered");
+		return;
+	}
 
 	if(info.pingPin == "everyone") {
 		var mainContent = "@everyone"
@@ -123,6 +195,7 @@ channel.send("New pinned message with content\n" + pinMsgs.content)
 })}
 })
 })
+})
 
 
 
@@ -163,7 +236,7 @@ if(message.content.toLowerCase() == prefix + "check") {
 	if(message.content.toLowerCase() == prefix + "help") {
 		message.channel.send("**Pinboard Help**", {embed:
 		{color: 0x123456,
-		description: "**Prefix: `pin.`**\n\n`info` - Uhhhh stuff, I guess?\n`check` - Is Pinboard ready to go?\n`board` - Create the #pinboard channel, if it doesn't exist already.\n`setup` - Need help setting up Pinboard?\n`git` - A link to the GitHub repo!\n\n**__Database Commands__**\n`dbstats` - View the info of your guild in the database!\n`setping` - Want Pinboard to ping with every pin?"
+		description: "**Prefix: `pin.`**\n\n`info` - Uhhhh stuff, I guess?\n`check` - Is Pinboard ready to go?\n`board` - Create the #pinboard channel, if it doesn't exist already.\n`setup` - Need help setting up Pinboard?\n`git` - A link to the GitHub repo!\n\n**__Database Commands__**\n`dbstats` - View the info of your guild in the database!\n`ignore` - Ignore any and all pins in a certain channel.\n`setping` - Want Pinboard to ping with every pin?"
 		}})
 	}
   
@@ -223,14 +296,40 @@ if(message.content.toLowerCase() == prefix + "check") {
 			if(!info) {
 				sql.run("INSERT INTO guildInfo (guildId, pingPin) VALUES (?, ?)", [message.guild.id, "false"])
 			}
+			message.channel.fetchPinnedMessages().then(messages => {
+				var checkPinSize = messages.size
+			
+		sql.get(`SELECT * FROM chnlInfo WHERE channelId = ${message.channel.id}`).then(chinfo => {
+			if(!chinfo) {
+				sql.run("INSERT INTO chnlInfo (channelId, pinCount, ignorePins) VALUES (?, ?, ?)", [message.channel.id, checkPinSize, "false"])
+			}
 		msg.edit("**Database Stats**", {embed:
 			{color: 0x123456,
 			title: `DB info for ${message.guild.name}`,
-			description: `Ping with every pin?\n**${info.pingPin}**`
-			}}
-		)
+			description: `Ping with every pin?\n**${info.pingPin}**\n\n__Channel info__\n\nIgnore pins?\n**${chinfo.ignorePins}**\nPin count in DB?\n**${chinfo.pinCount} pins**\nCurrent Pins\n**${checkPinSize} pins**`
+			}})
+		})
 	})
 })
+	})
+}
+
+	if(message.content.toLowerCase().startsWith("pin.ignore")) {
+		if(message.member.hasPermission("MANAGE_CHANNELS") == false) return message.reply("you do not have the manage channels permission!")
+		sql.get(`SELECT * FROM chnlInfo WHERE channelId = ${message.channel.id}`).then(chinfo => {
+			if(!chinfo) {
+				sql.run("INSERT INTO chnlInfo (channelId, pinCount, ignorePins) VALUES (?, ?, ?)", [message.channel.id, checkPinSize, "false"])
+			}
+		})
+		if(args == "true") {
+			sql.run(`UPDATE chnlInfo SET ignorePins = "true" WHERE channelId = ${message.channel.id}`)
+			message.channel.send("I will now ignore all pin events in this channel.")
+		} else if(args == "false") {
+			sql.run(`UPDATE chnlInfo SET ignorePins = "false" WHERE channelId = ${message.channel.id}`)
+			message.channel.send("I will get back to keeping track of these channel's pins!")
+		} else {
+			message.channel.send("**Incorrect arguments!**\nType `pin.ignore true` or `pin.ignore false`")
+		}
 }
 
 })
