@@ -29,7 +29,7 @@ After the bot has joined your server, run `pin.check` to make sure Pinboard has 
 The new database update requires a little more than that...  
 First, make sure everything is up-to-date by running `pin.dbstats`.  
 If it's correct, you should have something like this:  
-![Example](https://i.gyazo.com/eb408329f13326df9a3e40e2a1a4580b.png)  
+![Example](https://gyazo.com/3759708ca25af36d3d945aa208928f4d.png)  
 Do you have that? If not, please report it.  
 ## Setting Up Your Database  
 If you want to completely set up your database, you'll either need to be the owner or be an admin. Or just have the `Manage Server` permission. Any way works.  
