@@ -55,6 +55,7 @@ client.on("channelPinsUpdate", channel => {
 
 const ch = channel;
 const board = channel.guild.channels.find("name", "pinboard")
+if(channel == board) return;
  {channel.fetchPinnedMessages().then(messages => {
  
 	const pinMsgs = messages.first()
@@ -62,15 +63,16 @@ const board = channel.guild.channels.find("name", "pinboard")
 	if(!pinMsgs) return;
 	
 	if(pinMsgs.embeds[0] !== undefined) {
-	if(pinMsgs.attachments.first() !== undefined) {
-			var atch = pinMsgs.attachments.first().url
-		} else if(pinMsgs.embeds[0].thumbnail !== undefined) {
-			var atch = pinMsgs.embeds[0].thumbnail.url
+     if(pinMsgs.embeds[0].thumbnail !== null) {
+			var atch = pinMsgs.embeds[0].thumbnail.proxyURL
 		} else {
 				var atch = undefined
-			}} else  {
+			}} else if(pinMsgs.embeds[0] == undefined) {
+        if(pinMsgs.attachments.first() !== undefined) {
+			var atch = pinMsgs.attachments.first().proxyURL
+		} else {
 				var atch = undefined
-			}
+			}}
 	
 	if(!board) {
 if(channel.guild.me.hasPermission("MANAGE_CHANNELS") == false) return;
