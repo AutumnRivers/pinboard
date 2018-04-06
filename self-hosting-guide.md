@@ -5,7 +5,7 @@ Hosting your own Pinboard is quite easy; just download some things, create a fil
 If you use this code as a main feature for your bot, then your bot *must* be private. This cannot be the only feature of your bot if you plan to make it public.  
   
 ## Private Bots  
-No need to do anything - I've got you covered already!  
+Just keep my discord tag in the `pin.info` command, and dm me on Discord to make sure your private bot fits what I consider to be a private bot.  
   
 ## Public Bots  
 Public bots can use Pinboard's code so long as they follow these guidelines:  
@@ -52,7 +52,8 @@ Now, you need to create a `config.json` file. By default, the code looks for `pi
 {
 	"tokenboi":"bot token here",
 	"dbots":"Discord Bot List API key here",
-	"ink":"ls.terminal.ink API key here"
+	"ink":"ls.terminal.ink API key here",
+   "testServer":"Your Guild ID (put a 0 here if you don't wanna be notified of new pins"
 }
 ```  
   
