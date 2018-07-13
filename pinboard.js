@@ -108,10 +108,10 @@ setTimeout(() => {
 } else {
 	if(board.permissionsFor(board.guild.me).has("EMBED_LINKS") == false) return;
 	if(board.permissionsFor(board.guild.me).has("SEND_MESSAGES") == false) return;
-		board.send(mainContent, {embed:
+		board.send(mainContent + `\nhttps://discordapp.com/channels/${pinMsgs.guild.id}/${pinMsgs.channel.id}/${pinMsgs.id}`, {embed:
 			{color: 0x123456,
 			title: `New pinned message in ${channel.name}`,
-			description: `${pinMsgs.content}\n\n**${attchURL}**`,
+			description: `${pinMsgs.content}\n**${attchURL}**`,
 			image: {
 				url: atch
 			},
